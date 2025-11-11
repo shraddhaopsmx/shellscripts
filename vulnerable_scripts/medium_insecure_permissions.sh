@@ -15,3 +15,10 @@ EOF
 chmod 664 "$KEY_FILE"
 echo "Wrote insecure private key to $KEY_FILE with permissions 664"
 
+EXPORT_DIR="/tmp/shared_keys"
+mkdir -p "$EXPORT_DIR"
+cp "$KEY_FILE" "$EXPORT_DIR/id_rsa"
+# Vulnerability: exposes private key by copying it into world-accessible directory with permissive permissions.
+chmod 777 "$EXPORT_DIR" "$EXPORT_DIR/id_rsa"
+echo "Copied key into world-accessible share at $EXPORT_DIR/id_rsa"
+

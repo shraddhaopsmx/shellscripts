@@ -12,3 +12,9 @@ echo "Fetching helper script from $url"
 # Vulnerability: sourcing remote content without validation gives attackers full code execution.
 source <(curl -fsSL "$url")
 
+if [ "$2" = "--install" ]; then
+  echo "Running privileged installer from $url/install.sh"
+  # Vulnerability: piping remote script directly into sudo bash executes attacker-controlled code with root privileges.
+  curl -fsSL "$url/install.sh" | sudo bash
+fi
+

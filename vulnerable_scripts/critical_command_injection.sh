@@ -9,3 +9,13 @@ cmd="ping -c 1 $user_input"
 echo "Executing: $cmd"
 eval "$cmd"
 
+TRACE_FILE="/tmp/ping_history.sh"
+# Vulnerability: writes untrusted commands to executable log that anyone can run or modify.
+echo "$cmd" >> "$TRACE_FILE"
+chmod 777 "$TRACE_FILE"
+
+if [ "$1" = "--replay" ]; then
+  echo "Replaying recorded commands from $TRACE_FILE"
+  # Vulnerability: executes previously injected commands without validation.
+  bash "$TRACE_FILE"
+fi
