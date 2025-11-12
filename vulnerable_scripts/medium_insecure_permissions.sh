@@ -5,11 +5,15 @@
 KEY_FILE="${1:-./keys/id_rsa}"
 mkdir -p "$(dirname "$KEY_FILE")"
 
-cat <<'EOF' > "$KEY_FILE"
------BEGIN RSA PRIVATE KEY-----
-MIICWwIBAAKBgQCvulnerablekey
------END RSA PRIVATE KEY-----
-EOF
+# Read private key from a separate, private file
+PRIVATE_KEY_SOURCE="${PRIVATE_KEY_SOURCE:-./private_keys/source_key.pem}"
+if [[ -f "$PRIVATE_KEY_SOURCE" ]]; then
+    cp "$PRIVATE_KEY_SOURCE" "$KEY_FILE"
+else
+    echo "Error: Private key source file not found at $PRIVATE_KEY_SOURCE"
+    echo "Please create the private key file separately and set PRIVATE_KEY_SOURCE environment variable"
+    exit 1
+fi
 
 # Vulnerability: private key should be owner-readable only.
 chmod 664 "$KEY_FILE"
