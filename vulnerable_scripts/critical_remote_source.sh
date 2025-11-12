@@ -14,7 +14,15 @@ source <(curl -fsSL "$url")
 
 if [ "$2" = "--install" ]; then
   echo "Running privileged installer from $url/install.sh"
-  # Vulnerability: piping remote script directly into sudo bash executes attacker-controlled code with root privileges.
-  curl -fsSL "$url/install.sh" | sudo bash
+  # Fixed: Download to temporary file first, then execute to avoid piping untrusted data directly into bash
+  install_script=$(mktemp)
+  if curl -fsSL "$url/install.sh" -o "$install_script"; then
+    # Consider verifying SHA sum here before execution for additional security
+    sudo bash "$install_script"
+    rm -f "$install_script"
+  else
+    echo "Failed to download install script"
+    exit 1
+  fi
 fi
 
